@@ -1,0 +1,73 @@
+import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { CartContext } from '../context/ShoppingCartContext';
+
+const ItemList = ({ productos }) => {
+  const { id, price } = productos;
+  const { cart, setCart } = useContext(CartContext);
+  const addToCart = () => {
+    setCart((currItems) => {
+      const isItemsFound = currItems.find((item) => item.id === id);
+      if (isItemsFound) {
+        return currItems.map((item) => {
+          if (item.id === id) {
+            return { ...item, quantity: item.quantity + 1 };
+          } else {
+            return item;
+          }
+        });
+      } else {
+        return [...currItems, { id, quantity: 1, price }];
+      }
+    });
+  };
+
+  const removeItem = (id) => {
+    setCart((currItems) => {
+      if (currItems.find((item) => item.id === id)?.quantity === 1) {
+        return currItems.filter((item) => item.id !== id);
+      } else {
+        return currItems.map((item) => {
+          if (item.id === id) {
+            return { ...item, quantity: item.quantity - 1 };
+          } else {
+            return item;
+          }
+        });
+      }
+    });
+  };
+
+  const getQuantityById = (id) => {
+    return cart.find((item) => item.id === id)?.quantity || 0;
+  };
+
+  const quantityPerItem = getQuantityById(id);
+
+
+  return (
+    <div className='container text-center'>
+      <div className='row align-items-start'>
+        {productos.map((producto) => (
+          <div className="card" style={{ width: '18rem' }} key={producto.id}>
+            {
+              quantityPerItem > 0 && (
+                <h5>Cantidad de items : {quantityPerItem}</h5>
+              )
+            }
+            <img src={producto.image} className="card-img-top" alt="..." />
+            <div className="card-body">
+              <h5 className="card-title">{producto.title}</h5>
+              <p className="card-text" style={{ fontSize: "12px" }}>{producto.description}</p>
+              <button onClick={() => addToCart()}> Añadir al carrito </button>
+              <Link to={`/item/${producto.id}`}><a href="#" className="btn btn-secondary">Detalle</a></Link>
+            </div>
+          </div>
+        )
+        )}
+      </div>
+    </div >
+  )
+}
+
+export default ItemList
